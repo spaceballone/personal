@@ -1,0 +1,49 @@
+# Takes in the table name, directory containing a bunch of ZIP’ed shape files and a temp working directory
+# Flattens all of the zip files in the shape directory into a table named “public.DATASET”
+
+DATASET=$1
+SHAPEDIR=$2
+TMPDIR=$3
+
+if [ “$#” -eq 0 ];
+  then
+    echo “Please enter the dataset” 
+    exit 1  
+fi
+
+#assumes just default install of PostGIS
+DB=postgres
+USER_NAME=postgres
+TABLE=public.$DATASET
+
+#Clean up the staging directory, otherwise we will potentially end up with the wrong schema for each shape file
+cd $TMPDIR 
+rm $TMPDIR/*
+
+
+cd $SHAPEDIR
+
+#unzip files into temp working directory
+for z in *.zip; do unzip -o -d $TMPDIR $z; done
+
+cd $TMPDIR
+
+#Get the first file.  Used to set the schema in PostGIS
+FIRSTFILE=$(ls *.shp | head -1)
+
+echo $FIRST FILE
+
+#prepare the tables don't load data
+shp2pgsql -p -s 4326 -W LATIN1 $FIRSTFILE $TABLE  | psql -U $USER_NAME -d $DB
+
+
+#loop thru shapes and put them into SQL as 4326
+ for z in *${t}.shp;
+  do 
+	shp2pgsql -s 4326 -W LATIN1 -a $z $TABLE | psql -d $DB -U $USER_NAME;  
+  done
+
+psql -d $DB -U $USER_NAME “CREATE INDEX geom_gix ON $TABLE USING gist\(geom\)” 
+
+cd $TMPDIR 
+rm $TMPDIR/*

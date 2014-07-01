@@ -1,0 +1,32 @@
+#/bin/bash set -e
+
+#Takes in a dataset name, a folder representing where you want to put the extracted data, #along with a minLon, minLat, maxLon, maxLat representing the bounding box.  Assumes that #you already have a table in the public schema named for the dataset
+
+DATASET=$1
+EXPORTFOLDER=$2
+MINLON=$3
+MINLAT=$4
+MAXLON=$5
+MAXLAT=$6
+
+if [ $# -eq 0 ];
+  then
+    echo “Don’t forget your parameters!” 
+    exit 
+fi
+
+DB=postgres
+USER_NAME=postgres
+PASSWORD=postgres
+TABLE=public.$DATASET
+
+cd $EXPORTFOLDER
+
+#export the shape data
+
+echo pgsql2shp -h localhost -u $USER_NAME -P $PASSWORD $DB \"SELECT \* FROM $TABLE WHERE $TABLE.geom \&\& ST_MakeEnvelope\( $MINLON , $MINLAT , $MAXLON , $MAXLAT , 4326 \)\"
+
+pgsql2shp -h localhost -u $USER_NAME -P $PASSWORD $DB \"SELECT \* FROM $TABLE WHERE $TABLE.geom \&\& ST_MakeEnvelope\( $MINLON , $MINLAT , $MAXLON , $MAXLAT , 4326 \)\"
+
+#zip it into a new file 
+zip $DATASET_extracted *.shp *.prj *.dbf *.shx
