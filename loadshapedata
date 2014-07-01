@@ -33,6 +33,7 @@ cd $TEMP
 rm $TEMP/*.shp
 rm $TEMP/*.zip
 rm $TEMP/*.dbf
+rm $TEMP/*.prj
 rm $TEMP/*.shx
 
 
