@@ -3,12 +3,24 @@
 
 DATASET=$1
 SHAPEDIR=$2
-TMPDIR=$3
+TEMP=$3
 
 if [ “$#” -eq 0 ];
   then
-    echo “Please enter the dataset” 
+    echo “Please enter the dataset, shape directory and staging directory” 
     exit 1  
+fi
+
+if [ -z “$TEMP” ]
+  then 
+    echo attempting to set $TEMP directory to system temp directory
+    $TEMP=$TMPDIR
+fi
+
+if [ -z “$TEMP” ]
+  then 
+     echo Could not set temp directory.  Bailing
+     exit 1
 fi
 
 #assumes just default install of PostGIS
@@ -17,14 +29,14 @@ USER_NAME=postgres
 TABLE=public.$DATASET
 
 #Clean up the staging directory, otherwise we will potentially end up with the wrong schema for each shape file
-cd $TMPDIR 
-rm $TMPDIR/*
+cd $TEMP 
+rm $TEMP/*
 
 
 cd $SHAPEDIR
 
 #unzip files into temp working directory
-for z in *.zip; do unzip -o -d $TMPDIR $z; done
+for z in *.zip; do unzip -o -d $TEMP $z; done
 
 cd $TMPDIR
 
