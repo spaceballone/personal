@@ -30,7 +30,10 @@ TABLE=public.$DATASET
 
 #Clean up the staging directory, otherwise we will potentially end up with the wrong schema for each shape file
 cd $TEMP 
-rm $TEMP/*
+rm $TEMP/*.shp
+rm $TEMP/*.zip
+rm $TEMP/*.dbf
+rm $TEMP/*.shx
 
 
 cd $SHAPEDIR
