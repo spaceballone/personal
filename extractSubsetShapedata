@@ -1,4 +1,5 @@
-#/bin/bash set -e
+#/bin/bash 
+set -e
 
 #Takes in a dataset name, a folder representing where you want to put the extracted data, #along with a minLon, minLat, maxLon, maxLat representing the bounding box.  Assumes that #you already have a table in the public schema named for the dataset
 
