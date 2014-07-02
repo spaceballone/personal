@@ -1,5 +1,8 @@
+
 # Takes in the table name, directory containing a bunch of ZIP’ed shape files and a temp working directory
 # Flattens all of the zip files in the shape directory into a table named “public.DATASET”
+#/bin/bash
+-set e 
 
 DATASET=$1
 SHAPEDIR=$2

@@ -1,4 +1,5 @@
-#/bin/bash set -e
+#/bin/bash 
+set -e
 
 #Takes in a dataset name, a folder representing where you want to put the extracted data, #along with a minLon, minLat, maxLon, maxLat representing the bounding box.  Assumes that #you already have a table in the public schema named for the dataset
 
@@ -23,10 +24,14 @@ TABLE=public.$DATASET
 cd $EXPORTFOLDER
 
 #export the shape data
+VIEWNAME=public.tempextractview
+psql -U postgres h localhost -d postgres -c "CREATE VIEW $VIEWNAME AS SELECT * FROM $TABLE WHERE $TABLE.geom && ST_MakeEnvelope( $MINLON , $MINLAT , $MAXLON , $MAXLAT , 4326);" 
 
-echo pgsql2shp -h localhost -u $USER_NAME -P $PASSWORD $DB \"SELECT \* FROM $TABLE WHERE $TABLE.geom \&\& ST_MakeEnvelope\( $MINLON , $MINLAT , $MAXLON , $MAXLAT , 4326 \)\"
+#echo pgsql2shp -h localhost -u $USER_NAME -P $PASSWORD $DB "SELECT \* FROM $TABLE WHERE $TABLE.geom \&\& ST_MakeEnvelope\( $MINLON , $MINLAT , $MAXLON , $MAXLAT , 4326 \)"
 
-pgsql2shp -h localhost -u $USER_NAME -P $PASSWORD $DB \"SELECT \* FROM $TABLE WHERE $TABLE.geom \&\& ST_MakeEnvelope\( $MINLON , $MINLAT , $MAXLON , $MAXLAT , 4326 \)\"
+pgsql2shp -h localhost -u $USER_NAME -P $PASSWORD $DB $VIEWNAME
+
+psql -U postgres h localhost -d postgres -c "DROP VIEW $VIEWNAME"
 
 #zip it into a new file 
-zip $DATASET_extracted *.shp *.prj *.dbf *.shx
+zip -m extracted.zip *.shp *.prj *.dbf *.shx
